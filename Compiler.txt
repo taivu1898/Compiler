@@ -1,0 +1,92 @@
+                                                                Author: Vũ Viết Tài - HCMC 30/11/2023.
+
+                                                                        Trình biên dịch (compiler)
+                                                Trình biên dịch hiện tại: MinGW (Minimalist GNU for Windows).
+                                                                        Kiến trúc hiện tại x86_64.
+                                                                                Mã nguồn                            
+                                                ---------------------------------------------------------------
+                                                    #include <stdio.h>
+
+                                                    int main()
+                                                    {
+                                                        printf("Hello World");
+                                                        return 0;
+                                                    }
+                                                ---------------------------------------------------------------
+
+Có 4 bước thực hiện quá trình biên dịch (MinGW).
+
+Bước 1 - Tiền xử lý (Preprocessing).
+
+        gcc -E main.c -o main.i
+    
+    '-E': Chỉ thực hiện tiền xử lý và in ra kết quả.
+
+    Trình biên dịch bắt đầu bằng việc xử lý các chỉ thị tiền xử lý như file header (#include"), marco (#define), điều kiện biên dịch (#if, #ifdef).
+    Tất cả các file header được đưa vào mã nguồn.
+
+Bước 2 - Biên dịch (Compilation).
+
+        gcc -S main.i -o main.s 
+
+    '-S' Chỉ thực hiện bước biên dịch và tạo ra hợp ngữ.
+    Mã nguồn C đã được tiền xử lý được chuyển đổi thành mã nguồn hợp ngữ (assembly) - mã nguồn trung gian.
+
+Bước 3 - Tổ hợp (Assembly).
+
+        gcc -c main.s -o main.o
+    
+    '-c': Chỉ thực hiện bước tổ hợp và tạo ra tệp tin đối tượng.
+    Mã nguồn trung gian sau đó được chuyển đổi thành mã máy tương ứng của kiến trúc máy tính cụ thể của người dùng (Hiện tại là kiến trúc x86_64).
+    Tạo ra một tệp tin thực thi có thể chạy trực tiếp trên hệ điều hành.
+
+Bước 4 - Liên kết (Linking).
+
+        gcc main.c -o main.exe -lmsvcrt
+
+    * -lmsvcrt
+
+    Nếu chương trình sử dụng thư viện (ví dụ: 'printf' thuộc thư viện 'stdio.h'), các tệp tin thư viện này cũng được liên kết vào tệp tin thực thi.
+    Quá trình này tạo ra một tệp thưc thi hoàn chỉnh có thể chạy độc lập.
+
+Bước 5 - Thực hiện (Execution).
+
+        ./main.exe
+
+    Lệnh này chạy chương trình và hệ điều hành sẽ thực thi tệp tin thực thi đã được tạo ra.
+
+        xxd -b .\main.exe
+    Lệnh này thường được sử dụng để hiển thị một biểu diễn nhị phân (binary) của tệp thực thi (main.exe).
+
+    - xxd:        Là một công cụ dòng lệnh được sử dụng để xem hoặc biểu diễn dữ liệu dưới dạng hex dump (hexadecimals).
+    - b:          Là một tùy chọn của 'xxd' để hiển thị biểu diễn của nhị phân dữ liệu. Trong ngữ cảnh này, nó sẽ biểu diễn dữ liệu dưới dạng các byte được biểu diễn bằng các bit.
+    - ./main.exe: Đường dẫn đến tệp thực thi.
+---------------------------------------------------------------
+        gcc main.c -o main.exe
+    Lệnh này bỏ qua các bước trung gian và sử dụng 1 lệnh duy nhất để biên dịch và liên kết.
+
+    * lmsvcrt: là một tùy chọn trong liên kết (gcc main.c -o main.exe -lmsvcrt). Nó chỉ định compiler cần liên kết với thư viện MSVC Runtime (msvcrt).
+
+
+1. MSVC Runtime (msvcrt):
+    msvcrt là tên viết tắt của Microsoft Visual C Runtime. Đây là một thư viện runtime cần thiết cho chương trình được biên bằng trình biên dịch của Microsoft Visual C++.
+
+2. Chức năng của MSVC Runtime:
+    MSVC Runtime cung cấp các hàm và chức năng hỗ trợ cho các chương trình được viết bằng Visual C++. Điều này bao gồm các chức năng chuẩn C (như printf và scanf, v.v.) và các chức năng
+hỗ trợ hệ điều hành và các thư viện khác.
+
+3. Liên kết với MSVC Runtime:
+    Trong môi trường Windows, khi sử dụng trình biên dịch MinGW, việc liên kết với MSVC Runtime là quan trọng để đảm bảo rằng chương trình của bạn có thể chạy đúng trên hệ điều hành Windows
+mà không cần cài đặt thêm bất cứ thứ gì khác.
+
+4. Vấn đề liên kết với thư viện:
+    Trong một số trường hợp, có thể chỉ định đường dẫn đầy đủ đến thư viện hoặc sử dụng tùy chọn '-L' để chỉ định nơi trình biên dịch nên tìm kiếm thư viện.
+
+5. Thay đổi theo phiên bản và môi trường:
+    Phiên bản của MSVC Runtime và cách liên kết với nó có thể thay đổi theo phiên bản của trình biên dịch, hệ điều hành, và cài đặt cụ thể.
+    Khi sử dụng -lmsvcrt, trình biên dịch sẽ tìm kiếm và liên kết với thư viện MSVC Runtime để đảm bảo chương trình của bạn có thể chạy đúng trên hệ điều hành Windows.
+
+    -lmsvcrt nói cho trình biên dịch liên kết rằng bạn muốn liên kết với thư viện có tên msvcrt. Trình liên kết sẽ tự động thêm tiền tố 'lib' và hậu tố '.a' (hoặc 'lib' trên Windows) để
+tạo ra tên thư viện hoàn chỉnh.
+
+    -lmsvcrt là cách ngắn gọn và thuận tiện để chỉ định liên kết với thư viện MSVC Runtime mà không cần đăng nhập đầy đủ tên thư viện (ví dụ '-lmsvcrt' hoặc '-lmsvcrt.lib').
